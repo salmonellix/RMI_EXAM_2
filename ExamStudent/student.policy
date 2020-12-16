@@ -1,0 +1,7 @@
+grant codeBase "file:C:/Users/hp/Desktop/rmi_exam/ExamStudent/src/" {
+    permission java.security.AllPermission;
+};
+
+grant {
+  permission java.security.AllPermission;
+};
