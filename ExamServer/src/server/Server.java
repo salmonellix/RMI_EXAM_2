@@ -2,6 +2,7 @@ package server;
 
 import common.Question;
 import common.Exam;
+import constants.Constants;
 
 import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
@@ -18,21 +19,18 @@ public class Server {
     private static Registry startRegistry(Integer port)
             throws RemoteException {
         if(port == null) {
-            port = 1099;
+            port = Constants.server1Port;
         }
 
         try {
             Registry registry = LocateRegistry.getRegistry(port);
             registry.list( );
-            // The above call will throw an exception
-            // if the registry does not already exist
             return registry;
         }
         catch (RemoteException ex) {
-            // No valid registry at that port.
             System.out.println("RMI registry cannot be located ");
             Registry registry= LocateRegistry.createRegistry(port);
-            System.out.println("RMI registry created at port ");
+            System.out.println("RMI registry created at port: " + port);
             return registry;
         }
     }
@@ -45,7 +43,6 @@ public class Server {
             startRegistry(null);
             Registry registry = LocateRegistry.getRegistry();
             registry.bind("WELCOME", exam);
-            //
             System.err.println("Server ready. register students");
             SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Scanner in = new Scanner(System.in);
@@ -76,6 +73,10 @@ public class Server {
 //                d = new Date();
 //            }
 
+            // notify about start
+            synchronized (exam){
+                exam.notifyStart();
+            }
 
             synchronized (exam) {
                 System.out.println("Starting Exam!!!!!!");

@@ -10,6 +10,8 @@ public interface Exam extends Remote {
     public void sendID(String ID) throws RemoteException;
     public int getNumStudent() throws RemoteException;
     public void sendAnswer(String answer, int questionID, String studentID) throws RemoteException;
+    public void notifyStart() throws RemoteException;
+    public void registerInterface(String ID, StudentInterface student) throws RemoteException;
 
 
 

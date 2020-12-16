@@ -1,6 +1,8 @@
 package server;
 import common.Exam;
 import common.Question;
+import common.StudentInterface;
+import constants.Constants;
 import csvrw.CSVreader;
 
 import java.io.FileNotFoundException;
@@ -8,6 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 public class ExamImpl extends UnicastRemoteObject implements Exam{
@@ -18,6 +21,7 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
     ArrayList<String> studentsIDs = new ArrayList<>();
     Question question = null;
     HashMap<String, Double> studentsGrades = new HashMap<String, Double>();
+    HashMap<String, StudentInterface> studentsInterfaces = new HashMap<String, StudentInterface>();
 
 
 
@@ -68,19 +72,50 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
         }
         this.notify();
     }
+    public synchronized void registerInterface(String ID, StudentInterface student) throws RemoteException{
+        synchronized (this) {
+            if(studentsInterfaces.size() < Constants.maxStudents) {
+                studentsInterfaces.put(ID, student);
+                this.notify();
+            }
+        }
+    }
 
-    @Override
+
+
     public synchronized void sendID(String ID) throws RemoteException{
-        studentsIDs.add(ID);
-        studentsGrades.put(ID, 0.0);
-        this.notify();
+        synchronized (this) {
+            if(studentsInterfaces.size() < Constants.maxStudents) {
+                //studentsInterfaces.put(ID, student);
+                studentsIDs.add(ID);
+                studentsGrades.put(ID, 0.0);
+                this.notify();
+            }
+        }
     }
 
     public String toString(){
         return ("Students number: "+ studentsIDs.size());
     }
-
+    @Override
     public int getNumStudent() throws RemoteException{
         return studentsIDs.size();
     }
+    @Override
+    public void notifyStart() throws RemoteException{
+        List<StudentInterface> error_students = new ArrayList<>();
+        for (StudentInterface c : studentsInterfaces.values()) {
+            try{
+                c.notifyStartS();
+                this.notify();
+            }catch(RemoteException e){
+                System.out.println("Client is not reachable");
+                error_students.add(c);
+            }
+        }
+        for(StudentInterface c: error_students){
+            this.studentsInterfaces.remove(c);
+        }
+    }
+
 }

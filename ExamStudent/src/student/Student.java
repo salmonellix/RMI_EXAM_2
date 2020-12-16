@@ -2,6 +2,7 @@ package student;
 
 import common.Question;
 import common.Exam;
+import common.StudentInterface;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -17,11 +18,14 @@ public class Student {
         try{
 
             Registry registry = LocateRegistry.getRegistry();
+
             Exam exam = (Exam) registry.lookup("WELCOME");
+            StudentImpl studentI = new StudentImpl();
             Scanner keyboard = new Scanner(System.in);
             System.out.println("enter an ID");
             String studentID = keyboard.next();
             exam.sendID(studentID);
+            exam.registerInterface(studentID, studentI);
             String c = exam.getQuestion(0);
             System.out.println(c);
             System.out.println("enter an answer");
