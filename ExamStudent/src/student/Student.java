@@ -15,7 +15,7 @@ public class Student {
             System.setSecurityManager(new SecurityManager());
         }
         try{
-//            System.setProperty("java.security.policy","file:./student.policy");
+
             Registry registry = LocateRegistry.getRegistry();
             Exam exam = (Exam) registry.lookup("WELCOME");
             Scanner keyboard = new Scanner(System.in);
@@ -24,6 +24,9 @@ public class Student {
             exam.sendID(studentID);
             String c = exam.getQuestion(0);
             System.out.println(c);
+            System.out.println("enter an answer");
+            String answer = keyboard.next();
+            exam.sendAnswer(answer,0,studentID);
         }catch(Exception e){
             System.out.println(e);
         }

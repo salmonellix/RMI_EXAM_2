@@ -27,9 +27,6 @@ public class CSVreader {
             BufferedReader br = new BufferedReader(new FileReader(path));
             String line = "";
             questionID = 0;
-
-
-
             while((line = br.readLine()) != null ){
                 String[] values = line.split(";");
                 String a1 = values[1];
