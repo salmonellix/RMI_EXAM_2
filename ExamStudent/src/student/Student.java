@@ -6,6 +6,7 @@ import common.Exam;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 
 public class Student {
@@ -17,10 +18,15 @@ public class Student {
 //            System.setProperty("java.security.policy","file:./student.policy");
             Registry registry = LocateRegistry.getRegistry();
             Exam exam = (Exam) registry.lookup("WELCOME");
-            String c = exam.getQuestion(1);
+            Scanner keyboard = new Scanner(System.in);
+            System.out.println("enter an ID");
+            String studentID = keyboard.next();
+            exam.sendID(studentID);
+            String c = exam.getQuestion(0);
             System.out.println(c);
         }catch(Exception e){
             System.out.println(e);
         }
     }
 }
+// C:\Users\hp\Desktop\erasmus_studies\DC\RMI_exam\csvFiles\exam1.csv

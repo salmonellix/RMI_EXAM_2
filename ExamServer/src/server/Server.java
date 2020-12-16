@@ -7,6 +7,11 @@ import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Scanner;
 
 public class Server {
 
@@ -40,10 +45,40 @@ public class Server {
             startRegistry(null);
             Registry registry = LocateRegistry.getRegistry();
             registry.bind("WELCOME", exam);
+            //
+            System.err.println("Server ready. register students");
+            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Scanner in = new Scanner(System.in);
+            String ifStart = "NO";
+            Date date2=null;
+            String csvPath;
+            String ifFinish = "" ;
+            ArrayList<String> studentsIDs = new ArrayList<>();
+
+
+            // get starting date
+//            System.out.println("Enter the Starting Date");
+//            String date = in.nextLine();
+//            try {
+//                date2 = ft.parse(date);
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("EXAM DATE IS " +ft.format(date2));
+
+            // create exam
             exam.makeExam();
+
+            // wait for exam start
+            Date d = new Date();
+            System.out.println("WAITING");
+//            while (!(ft.format(d)).equals(ft.format(date2))){
+//                d = new Date();
+//            }
 
 
             synchronized (exam) {
+                System.out.println("Starting Exam!!!!!!");
                 while(true) {
                     System.out.println(exam);
                     exam.wait();

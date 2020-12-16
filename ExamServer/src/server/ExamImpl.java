@@ -12,15 +12,15 @@ import java.util.Scanner;
 public class ExamImpl extends UnicastRemoteObject implements Exam{
 
 
-    ArrayList<Question> questionList = null;
-    ArrayList<Question> answered = null;
+    ArrayList<Question> questionList = new ArrayList<>();
+    ArrayList<Question> answered = new ArrayList<>();
+    ArrayList<String> studentsIDs = new ArrayList<>();
+
 
 
 
     public ExamImpl () throws RemoteException {
         super();
-        this.questionList = new ArrayList<>();
-        this.answered = new ArrayList<>();
 
     }
 
@@ -37,14 +37,14 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
         }
     }
     @Override
-    public synchronized ArrayList<Question> makeExam() throws RemoteException, FileNotFoundException {
+    public synchronized void makeExam() throws RemoteException, FileNotFoundException {
         Scanner in = new Scanner(System.in);
         System.out.println("Give path to csv with exam questions");
         String csvPath = null;
         csvPath = in.nextLine();
         CSVreader mycsv = new CSVreader();
         questionList = mycsv.createExam(csvPath);
-        return questionList;
+        System.out.println(questionList.get(0).getQuestionText());
     }
 
 
@@ -55,7 +55,17 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
         this.notify();
     }
 
+    @Override
+    public synchronized void sendID(String ID) throws RemoteException{
+        studentsIDs.add(ID);
+        this.notify();
+    }
+
     public String toString(){
-        return ("Questions");
+        return ("Students number: "+ studentsIDs.size());
+    }
+
+    public int getNumStudent() throws RemoteException{
+        return studentsIDs.size();
     }
 }
