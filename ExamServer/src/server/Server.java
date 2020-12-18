@@ -115,7 +115,9 @@ public class Server {
                 System.out.println("End Exam!!");
                 studentGrades = exam.getGrades();
                 exam.notifyEnd();
+                exam.saveGrades();
             }
+
 
 
         }catch(Exception e){

@@ -62,18 +62,22 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
     }
 
     public synchronized void saveGrades() throws IOException {
-        Scanner in = new Scanner(System.in);
-        System.out.println("Give path to save csv with exam grades");
-        String csvPath = null;
-        csvPath = in.nextLine();
-        FileWriter writer;
-        writer = new FileWriter(csvPath, true);
-        for (int i = 0; i < studentsGrades.size(); i++){
-            writer.write(studentsGrades.get(i).toString());
-
-
-        }
-    }
+        try{
+            Scanner in = new Scanner(System.in);
+            System.out.println("Give path to save csv with exam grades");
+            String csvPath = null;
+            csvPath = in.nextLine();
+            FileWriter writer;
+            writer = new FileWriter(csvPath, true);
+            for (String i : studentsGrades.keySet()){
+                writer.write(i);
+                writer.write(";");
+                writer.write(studentsGrades.get(i).toString());
+                writer.write("\r\n");
+            }
+            writer.close();
+        }catch (IOException ignored){
+    }}
 
 
 
