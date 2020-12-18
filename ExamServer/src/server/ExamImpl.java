@@ -10,7 +10,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
 
 public class ExamImpl extends UnicastRemoteObject implements Exam{
@@ -22,6 +21,7 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
     Question question = null;
     HashMap<String, Double> studentsGrades = new HashMap<String, Double>();
     HashMap<String, StudentInterface> studentsInterfaces = new HashMap<String, StudentInterface>();
+    Boolean ifStarted = Boolean.FALSE;
 
 
 
@@ -63,14 +63,18 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
 
     @Override
     public synchronized void sendAnswer(String answer, int questionID, String studentID) throws RemoteException{
-        question = questionList.get(questionID);
-        String goodAnswer = question.getCorrectAnswer();
-        int points = 0;
-        if ((answer.toLowerCase()).equals(goodAnswer.toLowerCase())){
-            points = 1;
-            studentsGrades.put(studentID, studentsGrades.get(studentID) + points);
+        try {
+            question = questionList.get(questionID);
+            String goodAnswer = question.getCorrectAnswer();
+            int points = 0;
+            if ((answer.toLowerCase()).equals(goodAnswer.toLowerCase())) {
+                points = 1;
+                studentsGrades.put(studentID, studentsGrades.get(studentID) + points);
+            }
+            this.notify();
+        } catch (Exception e) {
+            this.notify();
         }
-        this.notify();
     }
     public synchronized void registerInterface(String ID, StudentInterface student) throws RemoteException{
         synchronized (this) {
@@ -84,13 +88,15 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
 
 
     public synchronized void sendID(String ID) throws RemoteException{
-        synchronized (this) {
+        try {
             if(studentsInterfaces.size() < Constants.maxStudents) {
                 //studentsInterfaces.put(ID, student);
                 studentsIDs.add(ID);
                 studentsGrades.put(ID, 0.0);
                 this.notify();
             }
+        } catch (Exception e) {
+            this.notify();
         }
     }
 
@@ -101,21 +107,53 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
     public int getNumStudent() throws RemoteException{
         return studentsIDs.size();
     }
-    @Override
-    public void notifyStart() throws RemoteException{
-        List<StudentInterface> error_students = new ArrayList<>();
-        for (StudentInterface c : studentsInterfaces.values()) {
-            try{
-                c.notifyStartS();
-                this.notify();
-            }catch(RemoteException e){
-                System.out.println("Client is not reachable");
-                error_students.add(c);
+
+    public synchronized HashMap<String, Double> getGrades() throws RemoteException{
+        try{
+            for (String i : studentsGrades.keySet()){
+                System.out.println(i + "Grade: " + studentsGrades.get(i));
             }
-        }
-        for(StudentInterface c: error_students){
-            this.studentsInterfaces.remove(c);
+            this.notify();
+            return studentsGrades;
+
+        } catch (Exception e) {
+            this.notify();
+            return null;
         }
     }
+
+
+
+    @Override
+    public void notifyStart() throws RemoteException{
+        ifStarted = Boolean.TRUE;
+        //this.notify();
+    }
+
+    public void notifyEnd() throws RemoteException{
+        ifStarted = Boolean.FALSE;
+        //this.notify();
+    }
+
+    public Boolean checkStart() throws RemoteException{
+        //this.notify();
+        return ifStarted;
+
+    }
+
+    public synchronized int questionsNumber() throws RemoteException{
+        try{
+            int size;
+            size = questionList.size();
+            this.notify();
+            return size;
+        } catch (Exception e) {
+            this.notify();
+            return 0;
+        }
+
+
+    }
+
 
 }

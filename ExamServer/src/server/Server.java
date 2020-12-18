@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Server {
@@ -51,6 +52,7 @@ public class Server {
             String csvPath;
             String ifFinish = "" ;
             ArrayList<String> studentsIDs = new ArrayList<>();
+            HashMap<String, Double> studentGrades = new HashMap<>();
 
 
             // get starting date
@@ -74,17 +76,49 @@ public class Server {
 //            }
 
             // notify about start
-            synchronized (exam){
-                exam.notifyStart();
-            }
+            registry.bind("EXAM STARTED", exam);
 
             synchronized (exam) {
-                System.out.println("Starting Exam!!!!!!");
-                while(true) {
-                    System.out.println(exam);
-                    exam.wait();
+                exam.notifyStart();
+                //measure time
+                long start = System.currentTimeMillis();
+                long elapsedTimeMillis = System.currentTimeMillis() - start;
+                float elapsedTimeMin = elapsedTimeMillis / (60 * 1000F);
+
+                if (exam.getNumStudent() != 0) {
+
+                    while (elapsedTimeMin < Constants.examTime) {
+
+
+                        elapsedTimeMillis = System.currentTimeMillis() - start;
+                        elapsedTimeMin = elapsedTimeMillis / (60 * 1000F);
+
+                        try {
+                            ifFinish = in.nextLine();
+                            if (ifFinish.toUpperCase().equals("FINISH")) {
+                                elapsedTimeMin = Constants.examTime;
+                            }
+                        } catch (Exception ignored) {
+
+                        }
+                        exam.wait();
+                    }
                 }
+                System.out.println("End Exam!!");
+                studentGrades = exam.getGrades();
+                exam.notifyEnd();
             }
+
+
+
+//            synchronized (exam) {
+//                System.out.println("Starting Exam!!!!!!");
+//                while(true) {
+//                    System.out.println(exam);
+//                    studentGrades = exam.getGrades();
+//                    exam.wait();
+//                }
+//            }
 
         }catch(Exception e){
             System.out.println(e);

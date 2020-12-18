@@ -4,10 +4,13 @@ import common.Question;
 import common.Exam;
 import common.StudentInterface;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 
 public class Student {
@@ -20,17 +23,51 @@ public class Student {
             Registry registry = LocateRegistry.getRegistry();
 
             Exam exam = (Exam) registry.lookup("WELCOME");
-            StudentImpl studentI = new StudentImpl();
+            try{
+                Exam examStarted = (Exam) registry.lookup("EXAM STARTED");
+                if (examStarted != exam){
+                    System.out.println("Exam has started -- gates are closed");
+                }} catch (RemoteException | NotBoundException ignored) {
+            }
+
+            //StudentImpl studentI = new StudentImpl();
             Scanner keyboard = new Scanner(System.in);
             System.out.println("enter an ID");
             String studentID = keyboard.next();
             exam.sendID(studentID);
-            exam.registerInterface(studentID, studentI);
-            String c = exam.getQuestion(0);
-            System.out.println(c);
-            System.out.println("enter an answer");
-            String answer = keyboard.next();
-            exam.sendAnswer(answer,0,studentID);
+            Boolean examOpen = Boolean.FALSE;
+            while (examOpen.equals(Boolean.FALSE)){
+                examOpen = exam.checkStart();
+            }
+
+            System.out.println("STARTING EXAM");
+            //exam.registerInterface(studentID, studentI);
+            int questionsNumber = exam.questionsNumber();
+
+            while(examOpen) {
+                synchronized (exam) {
+                    IntStream.range(0, questionsNumber).forEachOrdered(n -> {
+                        String c = null;
+                        try {
+                            c = exam.getQuestion(n);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println(c);
+                        System.out.println("enter an answer");
+                        String answer = keyboard.next();
+                        try {
+                            exam.sendAnswer(answer, n, studentID);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+
+                    });
+                }
+                System.out.println("END EXAM");
+
+
+            }
         }catch(Exception e){
             System.out.println(e);
         }
