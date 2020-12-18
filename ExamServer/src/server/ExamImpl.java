@@ -86,6 +86,15 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
     }
 
 
+    public synchronized void removeID(String ID) throws RemoteException{
+        synchronized (this) {
+            if(studentsIDs.size() < Constants.maxStudents) {
+                studentsIDs.remove(ID);
+                this.notify();
+            }
+        }
+    }
+
 
     public synchronized void sendID(String ID) throws RemoteException{
         try {

@@ -44,10 +44,12 @@ public class Student {
             //exam.registerInterface(studentID, studentI);
             int questionsNumber = exam.questionsNumber();
 
-            while(examOpen) {
-                synchronized (exam) {
-                    IntStream.range(0, questionsNumber).forEachOrdered(n -> {
-                        String c = null;
+            synchronized (exam) {
+                Boolean finalExamOpen = examOpen;
+                Boolean finalExamOpen1 = examOpen;
+                IntStream.range(0, questionsNumber).forEachOrdered(n -> {
+                    String c = null;
+                    if (finalExamOpen1.equals(Boolean.TRUE)){
                         try {
                             c = exam.getQuestion(n);
                         } catch (RemoteException e) {
@@ -61,13 +63,22 @@ public class Student {
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
+                    }
+                    else{
+                        System.out.println("Time is over");
+                        n = questionsNumber;
+                    }
 
-                    });
-                }
-                System.out.println("END EXAM");
-
-
+                });
+                exam.removeID(studentID);
             }
+
+
+
+
+
+            System.out.println("END EXAM");
+            System.exit(0);
         }catch(Exception e){
             System.out.println(e);
         }

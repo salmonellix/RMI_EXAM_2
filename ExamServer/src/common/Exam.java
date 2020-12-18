@@ -17,6 +17,7 @@ public interface Exam extends Remote {
     public Boolean checkStart() throws RemoteException;
     public void notifyEnd() throws RemoteException;
     public int questionsNumber() throws RemoteException;
+    public void removeID(String ID) throws RemoteException;
 
 
 

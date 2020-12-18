@@ -77,37 +77,39 @@ public class Server {
 
             // notify about start
             registry.bind("EXAM STARTED", exam);
+            exam.notifyStart();
+            //measure time
+            long start = System.currentTimeMillis();
+            long elapsedTimeMillis = System.currentTimeMillis()-start;
+            float elapsedTimeMin = elapsedTimeMillis/(60*1000F);
 
-            synchronized (exam) {
-                exam.notifyStart();
-                //measure time
-                long start = System.currentTimeMillis();
-                long elapsedTimeMillis = System.currentTimeMillis() - start;
-                float elapsedTimeMin = elapsedTimeMillis / (60 * 1000F);
+            while(elapsedTimeMin < Constants.examTime){
+                if (exam.getNumStudent() != 0){
 
-                if (exam.getNumStudent() != 0) {
-
-                    while (elapsedTimeMin < Constants.examTime) {
+                    synchronized (exam) {
 
 
                         elapsedTimeMillis = System.currentTimeMillis() - start;
                         elapsedTimeMin = elapsedTimeMillis / (60 * 1000F);
-
-                        try {
-                            ifFinish = in.nextLine();
-                            if (ifFinish.toUpperCase().equals("FINISH")) {
-                                elapsedTimeMin = Constants.examTime;
-                            }
-                        } catch (Exception ignored) {
-
-                        }
                         exam.wait();
+//                        try {
+//                            ifFinish = in.nextLine();
+//                            if (ifFinish.toUpperCase().equals("FINISH")) {
+//                                elapsedTimeMin = Constants.examTime;
+//                            }
+//                        } catch (Exception ignored) {
+//
+//                        }
                     }
                 }
-                System.out.println("End Exam!!");
-                studentGrades = exam.getGrades();
-                exam.notifyEnd();
+                else{
+                    System.out.println("No students");
+                    break;
+                }
             }
+            System.out.println("End Exam!!");
+            studentGrades = exam.getGrades();
+            exam.notifyEnd();
 
 
 
