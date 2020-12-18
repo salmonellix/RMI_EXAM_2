@@ -86,41 +86,37 @@ public class Server {
             while(elapsedTimeMin < Constants.examTime){
                 if (exam.getNumStudent() != 0){
 
+                    try {
+                        ifFinish = in.nextLine();
+                    } catch (Exception ignored) {
+                    }
+
                     synchronized (exam) {
 
 
                         elapsedTimeMillis = System.currentTimeMillis() - start;
                         elapsedTimeMin = elapsedTimeMillis / (60 * 1000F);
+                        if (ifFinish.toUpperCase().equals("FINISH")) {
+                            exam.notifyEnd();
+                            break;
+
+                        }
                         exam.wait();
-//                        try {
-//                            ifFinish = in.nextLine();
-//                            if (ifFinish.toUpperCase().equals("FINISH")) {
-//                                elapsedTimeMin = Constants.examTime;
-//                            }
-//                        } catch (Exception ignored) {
-//
-//                        }
                     }
                 }
                 else{
                     System.out.println("No students");
+                    exam.notifyEnd();
                     break;
                 }
             }
-            System.out.println("End Exam!!");
-            studentGrades = exam.getGrades();
-            exam.notifyEnd();
 
+            synchronized (exam) {
+                System.out.println("End Exam!!");
+                studentGrades = exam.getGrades();
+                exam.notifyEnd();
+            }
 
-
-//            synchronized (exam) {
-//                System.out.println("Starting Exam!!!!!!");
-//                while(true) {
-//                    System.out.println(exam);
-//                    studentGrades = exam.getGrades();
-//                    exam.wait();
-//                }
-//            }
 
         }catch(Exception e){
             System.out.println(e);

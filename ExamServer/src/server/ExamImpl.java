@@ -6,6 +6,8 @@ import constants.Constants;
 import csvrw.CSVreader;
 
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
     Question question = null;
     HashMap<String, Double> studentsGrades = new HashMap<String, Double>();
     HashMap<String, StudentInterface> studentsInterfaces = new HashMap<String, StudentInterface>();
-    Boolean ifStarted = Boolean.FALSE;
+    boolean ifStarted = false;
 
 
 
@@ -58,6 +60,21 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
         questionList = mycsv.createExam(csvPath);
 //        System.out.println(questionList.get(0).getQuestionText());
     }
+
+    public synchronized void saveGrades() throws IOException {
+        Scanner in = new Scanner(System.in);
+        System.out.println("Give path to save csv with exam grades");
+        String csvPath = null;
+        csvPath = in.nextLine();
+        FileWriter writer;
+        writer = new FileWriter(csvPath, true);
+        for (int i = 0; i < studentsGrades.size(); i++){
+            writer.write(studentsGrades.get(i).toString());
+
+
+        }
+    }
+
 
 
 
@@ -113,7 +130,8 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
         return ("Students number: "+ studentsIDs.size());
     }
     @Override
-    public int getNumStudent() throws RemoteException{
+    public synchronized int getNumStudent() throws RemoteException{
+        this.notify();
         return studentsIDs.size();
     }
 
@@ -135,16 +153,16 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
 
     @Override
     public void notifyStart() throws RemoteException{
-        ifStarted = Boolean.TRUE;
+        ifStarted = true;
         //this.notify();
     }
 
     public void notifyEnd() throws RemoteException{
-        ifStarted = Boolean.FALSE;
+        ifStarted = false;
         //this.notify();
     }
 
-    public Boolean checkStart() throws RemoteException{
+    public boolean checkStart() throws RemoteException{
         //this.notify();
         return ifStarted;
 

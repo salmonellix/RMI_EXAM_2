@@ -1,15 +1,13 @@
 package student;
 
-import common.Question;
 import common.Exam;
-import common.StudentInterface;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 
@@ -35,8 +33,8 @@ public class Student {
             System.out.println("enter an ID");
             String studentID = keyboard.next();
             exam.sendID(studentID);
-            Boolean examOpen = Boolean.FALSE;
-            while (examOpen.equals(Boolean.FALSE)){
+            boolean examOpen = false;
+            while (!examOpen){
                 examOpen = exam.checkStart();
             }
 
@@ -45,11 +43,15 @@ public class Student {
             int questionsNumber = exam.questionsNumber();
 
             synchronized (exam) {
-                Boolean finalExamOpen = examOpen;
-                Boolean finalExamOpen1 = examOpen;
+
+                AtomicBoolean finalExamOpen = new AtomicBoolean(true);
                 IntStream.range(0, questionsNumber).forEachOrdered(n -> {
                     String c = null;
-                    if (finalExamOpen1.equals(Boolean.TRUE)){
+                    try {
+                        finalExamOpen.set(exam.checkStart());
+                    } catch (RemoteException e) {
+                    }
+                    if (finalExamOpen.get()){
                         try {
                             c = exam.getQuestion(n);
                         } catch (RemoteException e) {

@@ -14,10 +14,10 @@ public interface Exam extends Remote {
     public void notifyStart() throws RemoteException;
     public void registerInterface(String ID, StudentInterface student) throws RemoteException;
     public HashMap<String, Double> getGrades() throws RemoteException;
-    public Boolean checkStart() throws RemoteException;
-    public void notifyEnd() throws RemoteException;
+    public boolean checkStart() throws RemoteException;
     public int questionsNumber() throws RemoteException;
     public void removeID(String ID) throws RemoteException;
+    public void notifyEnd() throws RemoteException;
 
 
 
