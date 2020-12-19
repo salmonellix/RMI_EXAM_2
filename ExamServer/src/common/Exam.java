@@ -13,7 +13,6 @@ public interface Exam extends Remote {
     public int getNumStudent() throws RemoteException;
     public void sendAnswer(String answer, int questionID, String studentID) throws RemoteException;
     public void notifyStart() throws RemoteException;
-    public void registerInterface(String ID, StudentInterface student) throws RemoteException;
     public HashMap<String, Double> getGrades() throws RemoteException;
     public boolean checkStart() throws RemoteException;
     public int questionsNumber() throws RemoteException;

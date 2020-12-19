@@ -1,10 +1,8 @@
 package server;
 
-import common.Question;
 import common.Exam;
 import constants.Constants;
 
-import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -17,7 +15,7 @@ import java.util.Scanner;
 
 public class Server {
 
-    private static Registry startRegistry(Integer port)
+    private static void startRegistry(Integer port)
             throws RemoteException {
         if(port == null) {
             port = Constants.server1Port;
@@ -26,13 +24,11 @@ public class Server {
         try {
             Registry registry = LocateRegistry.getRegistry(port);
             registry.list( );
-            return registry;
         }
         catch (RemoteException ex) {
             System.out.println("RMI registry cannot be located ");
             Registry registry= LocateRegistry.createRegistry(port);
             System.out.println("RMI registry created at port: " + port);
-            return registry;
         }
     }
     public static void main(String[] args){
@@ -55,25 +51,25 @@ public class Server {
             HashMap<String, Double> studentGrades = new HashMap<>();
 
 
-            // get starting date
-//            System.out.println("Enter the Starting Date");
-//            String date = in.nextLine();
-//            try {
-//                date2 = ft.parse(date);
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//            System.out.println("EXAM DATE IS " +ft.format(date2));
+//            // get starting date
+            System.out.println("Enter the Starting Date");
+            String date = in.nextLine();
+            try {
+                date2 = ft.parse(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            System.out.println("EXAM DATE IS " +ft.format(date2));
 
             // create exam
             exam.makeExam();
 
-            // wait for exam start
+//            // wait for exam start
             Date d = new Date();
             System.out.println("WAITING");
-//            while (!(ft.format(d)).equals(ft.format(date2))){
-//                d = new Date();
-//            }
+            while (!(ft.format(d)).equals(ft.format(date2))){
+                d = new Date();
+            }
 
             // notify about start
             registry.bind("EXAM STARTED", exam);
@@ -94,8 +90,7 @@ public class Server {
                     synchronized (exam) {
 
 
-                        elapsedTimeMillis = System.currentTimeMillis() - start;
-                        elapsedTimeMin = elapsedTimeMillis / (60 * 1000F);
+
                         if (ifFinish.toUpperCase().equals("FINISH")) {
                             exam.notifyEnd();
                             break;
@@ -109,6 +104,8 @@ public class Server {
                     exam.notifyEnd();
                     break;
                 }
+                elapsedTimeMillis = System.currentTimeMillis() - start;
+                elapsedTimeMin = elapsedTimeMillis / (60 * 1000F);
             }
 
             synchronized (exam) {

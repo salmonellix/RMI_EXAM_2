@@ -1,7 +1,6 @@
 package server;
 import common.Exam;
 import common.Question;
-import common.StudentInterface;
 import constants.Constants;
 import csvrw.CSVreader;
 
@@ -22,7 +21,6 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
     ArrayList<String> studentsIDs = new ArrayList<>();
     Question question = null;
     HashMap<String, Double> studentsGrades = new HashMap<String, Double>();
-    HashMap<String, StudentInterface> studentsInterfaces = new HashMap<String, StudentInterface>();
     boolean ifStarted = false;
 
 
@@ -97,14 +95,6 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
             this.notify();
         }
     }
-    public synchronized void registerInterface(String ID, StudentInterface student) throws RemoteException{
-        synchronized (this) {
-            if(studentsInterfaces.size() < Constants.maxStudents) {
-                studentsInterfaces.put(ID, student);
-                this.notify();
-            }
-        }
-    }
 
 
     public synchronized void removeID(String ID) throws RemoteException{
@@ -119,7 +109,7 @@ public class ExamImpl extends UnicastRemoteObject implements Exam{
 
     public synchronized void sendID(String ID) throws RemoteException{
         try {
-            if(studentsInterfaces.size() < Constants.maxStudents) {
+            if(studentsIDs.size() < Constants.maxStudents) {
                 //studentsInterfaces.put(ID, student);
                 studentsIDs.add(ID);
                 studentsGrades.put(ID, 0.0);

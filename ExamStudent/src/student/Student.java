@@ -28,7 +28,6 @@ public class Student {
                 }} catch (RemoteException | NotBoundException ignored) {
             }
 
-            //StudentImpl studentI = new StudentImpl();
             Scanner keyboard = new Scanner(System.in);
             System.out.println("enter an ID");
             String studentID = keyboard.next();
