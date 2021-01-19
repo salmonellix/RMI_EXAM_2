@@ -18,7 +18,7 @@ public class Student {
         }
         try{
 
-            Registry registry = LocateRegistry.getRegistry();
+            Registry registry = LocateRegistry.getRegistry(8000);
 
             Exam exam = (Exam) registry.lookup("WELCOME");
             try{
